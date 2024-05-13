@@ -16,6 +16,7 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <h2>Ci/CD integration</h2>
+        <p>this is preview pipeline</p>
         <p>~ By pawarSachin</p>
       </main>
     </>
