@@ -1,0 +1,21 @@
+name: Deploy to Testing
+
+on:
+  push:
+    branches:
+      - testing
+
+jobs:
+  deploy_to_testing:
+    name: Deploy to Testing Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel (Testing)
+        run: vercel --prod false --confirm --scope pawarsachin --local-config vercel.json
