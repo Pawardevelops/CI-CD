@@ -6,8 +6,9 @@ env:
 
 on:
     push:
-        branches:
+        branches-ignore:
             - testing
+            - master
 
 jobs:
     Deploy-Preview:
