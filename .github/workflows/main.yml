@@ -1,0 +1,60 @@
+name: Vercel Deployment and Redirect
+
+on:
+  push:
+    branches:
+      - testing
+      - master
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  test_deploy:
+    name: Deploy to Testing
+    if: github.event_name == 'push' && github.ref == 'refs/heads/testing'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel (Testing)
+        run: vercel --prod false --confirm --scope <your-vercel-account> --local-config vercel.json
+
+  redirect_to_testing:
+    name: Redirect Direct Pushes to Testing Branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Push changes to testing branch
+        run: |
+          git checkout -b redirect-branch
+          git push origin redirect-branch:testing --force
+
+  merge_to_master:
+    name: Merge to Master and Deploy
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Merge testing into master
+        run: git merge --no-ff origin/testing --no-edit
+        
+      - name: Push to master
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
+
+      - name: Deploy to Vercel (Production)
+        run: vercel --prod --confirm --scope <your-vercel-account> --local-config vercel.json
